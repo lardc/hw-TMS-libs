@@ -281,7 +281,7 @@ Int32U ZwCANb_GetTimeStamp();
 
 
 // ISR postfix
-#define CAN_ISR_DONE    PieCtrlRegs.PIEACK.all = PIEACK_GROUP9;
+#define CAN_ISR_DONE    PieCtrlRegs.PIEACK.all = PIEACK_GROUP9
 
 
 #endif // __ZW_CAN_H

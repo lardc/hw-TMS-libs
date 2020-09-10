@@ -1,4 +1,4 @@
-// -----------------------------------------
+// ----------------------------------------
 // API for SPI module
 // ----------------------------------------
 
@@ -24,7 +24,7 @@ typedef enum __SPITransmissionType
 {
 	STTNormal = 0,
 	STTStream = 1,
-	STTDelayed = 2
+	STTUseFlag = 2
 } SPITransmissionType;
 
 // Internal variables
@@ -70,102 +70,102 @@ void ZwSPIx_AlterBaudrate(volatile struct SPI_REGS *SpixRegs, Int32U BaudRate);
 void inline ZwSPIa_Send(pInt16U Buffer, Int16U BufferSize, Int16U CharSize, SPITransmissionType TransmissionType)
 {
 #ifdef HWUSE_SPI_A
-
-	// Wait for end of current transmitting
-	if(TransmissionType != STTStream)
-		while(SpiaRegs.SPISTS.bit.BUFFULL_FLAG==1); //NOT TESTED!!!
+	if(TransmissionType == STTNormal)
+		while(!GpioDataRegs.GPADAT.bit.SPI_A_CS);
+	else if (TransmissionType == STTUseFlag)
+	{
+		while(SpiaRegs.SPISTS.bit.INT_FLAG);
+		volatile Int16U tmp;
+		do
+		{
+			tmp = SpiaRegs.SPIRXBUF;
+		}
+		while(SpiaRegs.SPIFFRX.bit.RXFFST);
+	}
 
 	ZwSPIx_Send(&SpiaRegs, Buffer, BufferSize, CharSize, TransmissionType);
-
 #endif
 }
 //
 void inline ZwSPIb_Send(pInt16U Buffer, Int16U BufferSize, Int16U CharSize, SPITransmissionType TransmissionType)
 {
 #ifdef HWUSE_SPI_B
-
-	// Wait for end of current transmitting
-	if(TransmissionType != STTStream)
-		while(SpibRegs.SPISTS.bit.BUFFULL_FLAG==1);
+	if(TransmissionType == STTNormal)
+		while(!GpioDataRegs.GPADAT.bit.SPI_B_CS);
+	else if (TransmissionType == STTUseFlag)
+	{
+		while(SpibRegs.SPISTS.bit.INT_FLAG);
+		volatile Int16U tmp;
+		do
+		{
+			tmp = SpibRegs.SPIRXBUF;
+		}
+		while(SpibRegs.SPIFFRX.bit.RXFFST);
+	}
 
 	ZwSPIx_Send(&SpibRegs, Buffer, BufferSize, CharSize, TransmissionType);
-
 #endif
 }
 //
 void inline ZwSPIc_Send(pInt16U Buffer, Int16U BufferSize, Int16U CharSize, SPITransmissionType TransmissionType)
 {
 #ifdef HWUSE_SPI_C
-
-	// Wait for end of current transmitting
-	if(TransmissionType != STTStream)
+	if(TransmissionType == STTNormal)
 		while(!GpioDataRegs.GPADAT.bit.SPI_C_CS);
+	else if (TransmissionType == STTUseFlag)
+	{
+		while(SpicRegs.SPISTS.bit.INT_FLAG);
+		volatile Int16U tmp;
+		do
+		{
+			tmp = SpicRegs.SPIRXBUF;
+		}
+		while(SpicRegs.SPIFFRX.bit.RXFFST);
+	}
 
 	ZwSPIx_Send(&SpicRegs, Buffer, BufferSize, CharSize, TransmissionType);
-
 #endif
 }
 //
 void inline ZwSPId_Send(pInt16U Buffer, Int16U BufferSize, Int16U CharSize, SPITransmissionType TransmissionType)
 {
 #ifdef HWUSE_SPI_D
-
-	// Wait for end of current transmitting
-	if(TransmissionType != STTStream)
+	if(TransmissionType == STTNormal)
 		while(!GpioDataRegs.GPADAT.bit.SPI_D_CS);
+	else if (TransmissionType == STTUseFlag)
+	{
+		while(SpidRegs.SPISTS.bit.INT_FLAG);
+		volatile Int16U tmp;
+		do
+		{
+			tmp = SpidRegs.SPIRXBUF;
+		}
+		while(SpidRegs.SPIFFRX.bit.RXFFST);
+	}
 
 	ZwSPIx_Send(&SpidRegs, Buffer, BufferSize, CharSize, TransmissionType);
-
 #endif
 }
 //
 // Begin receive data
 void inline ZwSPIa_BeginReceive(pInt16U OptionalData, Int16U DataSize, Int16U CharSize, SPITransmissionType TransmissionType)
 {
-#ifdef HWUSE_SPI_A
-
-	if(TransmissionType != STTStream)
-		while(!GpioDataRegs.GPADAT.bit.SPI_A_CS);
-
-	ZwSPIx_Send(&SpiaRegs, OptionalData == NULL ? DummyBuffer : OptionalData, DataSize, CharSize, TransmissionType);
-
-#endif
+	ZwSPIa_Send(OptionalData == NULL ? DummyBuffer : OptionalData, DataSize, CharSize, TransmissionType);
 }
 //
 void inline ZwSPIb_BeginReceive(pInt16U OptionalData, Int16U DataSize, Int16U CharSize, SPITransmissionType TransmissionType)
 {
-#ifdef HWUSE_SPI_B
-
-	if(TransmissionType != STTStream)
-		while(!GpioDataRegs.GPADAT.bit.SPI_B_CS);
-
-	ZwSPIx_Send(&SpibRegs, OptionalData == NULL ? DummyBuffer : OptionalData, DataSize, CharSize, TransmissionType);
-
-#endif
+	ZwSPIb_Send(OptionalData == NULL ? DummyBuffer : OptionalData, DataSize, CharSize, TransmissionType);
 }
 //
 void inline ZwSPIc_BeginReceive(pInt16U OptionalData, Int16U DataSize, Int16U CharSize, SPITransmissionType TransmissionType)
 {
-#ifdef HWUSE_SPI_C
-
-	if(TransmissionType != STTStream)
-		while(!GpioDataRegs.GPADAT.bit.SPI_C_CS);
-
-	ZwSPIx_Send(&SpicRegs, OptionalData == NULL ? DummyBuffer : OptionalData, DataSize, CharSize, TransmissionType);
-
-#endif
+	ZwSPIc_Send(OptionalData == NULL ? DummyBuffer : OptionalData, DataSize, CharSize, TransmissionType);
 }
 //
 void inline ZwSPId_BeginReceive(pInt16U OptionalData, Int16U DataSize, Int16U CharSize, SPITransmissionType TransmissionType)
 {
-#ifdef HWUSE_SPI_D
-
-	if(TransmissionType != STTStream)
-		while(!GpioDataRegs.GPADAT.bit.SPI_D_CS);
-
-	ZwSPIx_Send(&SpidRegs, OptionalData == NULL ? DummyBuffer : OptionalData, DataSize, CharSize, TransmissionType);
-
-#endif
+	ZwSPId_Send(OptionalData == NULL ? DummyBuffer : OptionalData, DataSize, CharSize, TransmissionType);
 }
 //
 // End receive data

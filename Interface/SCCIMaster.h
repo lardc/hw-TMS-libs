@@ -35,7 +35,10 @@ Int16U SCCIM_Write16(pSCCIM_Interface Interface, Int16U NodeID, Int16U Address, 
 // Read 16-bit value
 Int16U SCCIM_Read16(pSCCIM_Interface Interface, Int16U NodeID, Int16U Address, pInt16U Value);
 // Read array of 16-bit values
-Int16U SCCIM_ReadArray16(pSCCIM_Interface Interface, Int16U NodeID, Int16U Endpoint, Int16U MaxCount, pInt16U Out, pInt16U OutCounter);
+Int16U SCCIM_ReadArray16(pSCCIM_Interface Interface, Int16U NodeID, Int16U Endpoint, Int16U MaxCount, pInt16U Out,
+		pInt16U OutCounter);
+Int16U SCCIM_ReadArray16Callback(pSCCIM_Interface Interface, Int16U NodeID, Int16U Endpoint, Int16U MaxCount,
+		pInt16U Out, pInt16U OutCounter, void (*Callback)());
 // Call action
 Int16U SCCIM_Call(pSCCIM_Interface Interface, Int16U NodeID, Int16U Action);
 

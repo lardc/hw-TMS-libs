@@ -74,13 +74,21 @@ Int16U SCCIM_Read16(pSCCIM_Interface Interface, Int16U NodeID, Int16U Address, p
 }
 // ----------------------------------------
 
-Int16U SCCIM_ReadArray16(pSCCIM_Interface Interface, Int16U NodeID, Int16U Endpoint, Int16U MaxCount, pInt16U Out, pInt16U OutCounter)
+Int16U SCCIM_ReadArray16(pSCCIM_Interface Interface, Int16U NodeID, Int16U Endpoint, Int16U MaxCount, pInt16U Out,
+		pInt16U OutCounter)
+{
+	return SCCIM_ReadArray16Callback(Interface, NodeID, Endpoint, MaxCount, Out, OutCounter, NULL);
+}
+// ----------------------------------------
+
+Int16U SCCIM_ReadArray16Callback(pSCCIM_Interface Interface, Int16U NodeID, Int16U Endpoint, Int16U MaxCount,
+		pInt16U Out, pInt16U OutCounter, void (*Callback)())
 {
 	Int16U result;
 	Int16U i = 0, j, k = 0;
 	Int16U dataCount = 1;
 
-	while ((i < MaxCount) && (dataCount > 0))
+	while((i < MaxCount) && (dataCount > 0))
 	{
 		Interface->MessageBuffer[2] = Endpoint << 8;
 
@@ -98,6 +106,9 @@ Int16U SCCIM_ReadArray16(pSCCIM_Interface Interface, Int16U NodeID, Int16U Endpo
 
 		for (j = 0; j < dataCount; j++)
 			Out[k++] = Interface->MessageBuffer[3 + j];
+
+		if (Callback)
+			Callback();
 	}
 
 	*OutCounter = k;

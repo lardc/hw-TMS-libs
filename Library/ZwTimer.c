@@ -11,6 +11,7 @@
 // Forward functions
 //
 void ZwTimer_SetTx(volatile struct CPUTIMER_REGS *Regs, Int32U CPUFreq_MHz, Int32U Period_uSec);
+void ZwTimer_SetPeriodTx_us(volatile struct CPUTIMER_REGS *Regs, Int32U CPUFreq_MHz, Int32U Period_uSec);
 void ZwTimer_InitTx(volatile struct CPUTIMER_REGS *Regs);
 
 // Functions
@@ -24,6 +25,12 @@ void ZwTimer_InitT0(void)
 void ZwTimer_SetT0(Int32U Period_uSec)
 {
 	ZwTimer_SetTx(&CpuTimer0Regs, CPU_FRQ_MHZ, Period_uSec);
+}
+//----------------------------------------
+
+void ZwTimer_SetPeriodT0_us(Int32U Period_uSec)
+{
+	ZwTimer_SetPeriodTx_us(&CpuTimer0Regs, CPU_FRQ_MHZ, Period_uSec);
 }
 //----------------------------------------
 
@@ -45,6 +52,12 @@ void ZwTimer_SetT1x10(Int32U Period_uSec_x10)
 }
 //----------------------------------------
 
+void ZwTimer_SetPeriodT1_us(Int32U Period_uSec)
+{
+	ZwTimer_SetPeriodTx_us(&CpuTimer1Regs, CPU_FRQ_MHZ, Period_uSec);
+}
+//----------------------------------------
+
 void ZwTimer_InitT2()
 {
 	ZwTimer_InitTx(&CpuTimer2Regs);
@@ -54,6 +67,12 @@ void ZwTimer_InitT2()
 void ZwTimer_SetT2(Int32U Period_uSec)
 {
 	ZwTimer_SetTx(&CpuTimer2Regs, CPU_FRQ_MHZ, Period_uSec);
+}
+//----------------------------------------
+
+void ZwTimer_SetPeriodT2_us(Int32U Period_uSec)
+{
+	ZwTimer_SetPeriodTx_us(&CpuTimer2Regs, CPU_FRQ_MHZ, Period_uSec);
 }
 //----------------------------------------
 
@@ -101,6 +120,26 @@ void ZwTimer_SetTx(volatile struct CPUTIMER_REGS *Regs, Int32U CPUFreq_MHz, Int3
 	Regs->TPR.all = 0;
 	Regs->TPRH.all = 0;
 	
+	// Initialize timer control register:
+	Regs->TCR.bit.TSS = 1;      // 1 = Stop timer, 0 = Start/Restart Timer
+	Regs->TCR.bit.TRB = 1;      // 1 = reload timer
+	Regs->TCR.bit.SOFT = 1;
+	Regs->TCR.bit.FREE = 1;     // Timer Free Run
+	Regs->TCR.bit.TIE = 1;      // 0 = Disable/ 1 = Enable Timer Interrupt
+}
+//----------------------------------------
+
+void ZwTimer_SetPeriodTx_us(volatile struct CPUTIMER_REGS *Regs, Int32U CPUFreq_MHz, Int32U Period_uSec)
+{
+	Int32U Prescaler = CPUFreq_MHz - 1;
+
+	// Initialize timer period:
+	Regs->PRD.all = Period_uSec;
+
+	// Set prescaler
+	Regs->TPR.all = Prescaler & 0xFFFF;
+	Regs->TPRH.all = (Prescaler >> 16) & 0xFFFF;
+
 	// Initialize timer control register:
 	Regs->TCR.bit.TSS = 1;      // 1 = Stop timer, 0 = Start/Restart Timer
 	Regs->TCR.bit.TRB = 1;      // 1 = reload timer

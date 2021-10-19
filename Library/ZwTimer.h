@@ -17,12 +17,14 @@
 void ZwTimer_InitT0();
 // Set timer 0 period
 void ZwTimer_SetT0(Int32U Period_uSec);
+void ZwTimer_SetPeriodT0_us(Int32U Period_uSec);
 // Enable interrupt processing on T0
 void ZwTimer_EnableInterruptsT0(Boolean Enable);
 // Initialize CPU timer 1
 void ZwTimer_InitT1();
 // Set timer 1 period
 void ZwTimer_SetT1(Int32U Period_uSec);
+void ZwTimer_SetPeriodT1_us(Int32U Period_uSec);
 // Set timer 1 period (in us x10)
 void ZwTimer_SetT1x10(Int32U Period_uSec_x10);
 // Enable interrupt processing on T1
@@ -31,6 +33,7 @@ void ZwTimer_EnableInterruptsT1(Boolean Enable);
 void ZwTimer_InitT2();
 // Set timer 2 period
 void ZwTimer_SetT2(Int32U Period_uSec);
+void ZwTimer_SetPeriodT2_us(Int32U Period_uSec);
 // Enable interrupt processing on T2
 void ZwTimer_EnableInterruptsT2(Boolean Enable);
 

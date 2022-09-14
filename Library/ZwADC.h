@@ -110,7 +110,18 @@ void inline ZwADC_StartSEQ2()
 	// Start sequencer
 	AdcRegs.ADCTRL2.bit.SOC_SEQ2 = 0x01;
 }
-// -----------------------------------------
+//
+// Get SEQ1 status
+Boolean inline ZwADC_IsSEQ1Busy()
+{
+	return AdcRegs.ADCST.bit.SEQ1_BSY;
+}
+//
+// Get SEQ2 status
+Boolean inline ZwADC_IsSEQ2Busy()
+{
+	return AdcRegs.ADCST.bit.SEQ2_BSY;
+}
 
 // Macro
 #define ADC_ISR_DONE 	  PieCtrlRegs.PIEACK.all = PIEACK_GROUP1

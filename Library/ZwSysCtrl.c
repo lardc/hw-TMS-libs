@@ -35,15 +35,11 @@ Boolean ZwSystem_Init(Int16U PLLValue, Int16U ClkInDiv, Int16U LowPClkPrescaler,
 
 void ZwSystem_SelectDogFunc(Boolean Interrupt)
 {
-	Int16U scsr = 0;
-
-	if(Interrupt)
-		scsr |= BIT1;
-	else
-		scsr &= ~BIT1;
-
 	EALLOW;
-	SysCtrlRegs.SCSR = scsr;
+	if(Interrupt)
+		SysCtrlRegs.SCSR |= BIT1;
+	else
+		SysCtrlRegs.SCSR = 0;
 	EDIS;
 }
 // ----------------------------------------
@@ -91,11 +87,8 @@ void ZwSystem_ServiceDog()
 
 void ZwSystem_LockDog()
 {
-	Int16U scsr = SysCtrlRegs.SCSR;
-	scsr |= BIT0;
-
 	EALLOW;
-	SysCtrlRegs.SCSR = scsr;
+	SysCtrlRegs.SCSR |= BIT0;
 	EDIS;
 }
 // ----------------------------------------

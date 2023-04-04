@@ -6,7 +6,6 @@
 #include "Flash.h"
 
 // Variables
-static Int16U LabelReadPointer = 0;
 static SelectorIndex LabelSelector = SID_None;
 
 // Forward functions
@@ -44,7 +43,19 @@ void FWLB_LoadBoardLabel()
 
 void FWLB_WriteBoardLabel(Int16U Index)
 {
-	Int16U i, tmp[LABEL_NAME_MAX_LENGTH + 2] = {0};
+	// Проверка на превышение индекса
+	if(Index >= BoardLabelsSize)
+		return;
+
+	// Проверка на нестёртую память
+	Int16U i;
+	for(i = 0; i < LABEL_NAME_MAX_LENGTH + 2; i++)
+	{
+		if(*(pInt16U)(i + LABEL_START_ADDRESS) != 0xFFFF)
+			return;
+	}
+
+	Int16U tmp[LABEL_NAME_MAX_LENGTH + 2] = {0};
 	for(i = 0; i < LABEL_NAME_MAX_LENGTH; i++)
 		tmp[i + 2] = BoardLabels[Index].Name[i];
 
@@ -73,23 +84,5 @@ Boolean FWLB_AreNamesEqual(char *a, char *b)
 SelectorIndex FWLB_GetSelector()
 {
 	return LabelSelector;
-}
-// ----------------------------------------
-
-void FWLB_PrepareLabelRead()
-{
-	LabelReadPointer = 0;
-}
-// ----------------------------------------
-
-Int16U FWLB_ReadLabelSymbol()
-{
-	if(LabelReadPointer < LABEL_NAME_MAX_LENGTH)
-	{
-		Int16U Symbol = *(pInt16U)(LABEL_START_ADDRESS + LabelReadPointer++);
-		return (0x20 <= Symbol && Symbol <= 0x7E) ? Symbol : 0;
-	}
-	else
-		return 0;
 }
 // ----------------------------------------

@@ -16,10 +16,8 @@ typedef struct __Label
 } Label;
 
 // Functions
+void FWLB_WriteBoardLabel(Int16U Index);
 void FWLB_LoadBoardLabel();
 SelectorIndex FWLB_GetSelector();
-
-void FWLB_PrepareLabelRead();
-Int16U FWLB_ReadLabelSymbol();
 
 #endif // __FIRMWARE_LABEL_H

@@ -1,4 +1,4 @@
-#ifndef __FIRMWARE_INFO_H
+﻿#ifndef __FIRMWARE_INFO_H
 #define __FIRMWARE_INFO_H
 
 // Include

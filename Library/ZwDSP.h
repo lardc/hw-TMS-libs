@@ -1,4 +1,4 @@
-// -----------------------------------------
+﻿// -----------------------------------------
 // Declaration file for ZwDSP library.
 // 
 //		BASED ON 	- 	TI C/C++ Headers and Examples

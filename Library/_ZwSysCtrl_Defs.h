@@ -1,4 +1,4 @@
-// -----------------------------------------
+﻿// -----------------------------------------
 // General system management definitions.
 //
 // COPYRIGHT (C) Texas Instruments

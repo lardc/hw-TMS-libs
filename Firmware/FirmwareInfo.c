@@ -1,4 +1,4 @@
-// Header
+﻿// Header
 #include "FirmwareInfo.h"
 
 // Definitions

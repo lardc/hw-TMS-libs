@@ -1,4 +1,4 @@
-#ifndef __ZW_XINT_DEFS_H
+﻿#ifndef __ZW_XINT_DEFS_H
 #define __ZW_XINT_DEFS_H
 
 #include "ZwBase.h"

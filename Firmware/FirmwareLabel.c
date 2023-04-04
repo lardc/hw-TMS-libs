@@ -4,6 +4,8 @@
 // Include
 #include "LabelDescription.h"
 #include "Flash.h"
+#include "ZwSysCtrl.h"
+#include "SySConfig.h"
 
 // Variables
 static SelectorIndex LabelSelector = SID_None;
@@ -62,9 +64,11 @@ void FWLB_WriteBoardLabel(Int16U Index)
 	tmp[0] = 0;							// Строковые данные
 	tmp[1] = LABEL_NAME_MAX_LENGTH;		// Длина строки
 
+	ZwSystem_DisableDog();
 	DINT;
 	Status = Flash_Program((Uint16 *)PrgAdrCount, tmp, LABEL_NAME_MAX_LENGTH + 2, (FLASH_ST *)&FlashStatus);
 	EINT;
+	ZwSystem_EnableDog(SYS_WD_PRESCALER);
 }
 // ----------------------------------------
 

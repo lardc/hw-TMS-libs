@@ -22,7 +22,7 @@ void FWLB_LoadBoardLabel()
 	char CurrentLabel[LABEL_NAME_MAX_LENGTH] = {0};
 	for(i = 0; i < LABEL_NAME_MAX_LENGTH; i++)
 	{
-		Int16U Symbol = *(pInt16U)(i + LABEL_START_ADDRESS);
+		Int16U Symbol = *(pInt16U)(i + LABEL_START_ADDRESS + 2);
 
 		// Проверка на попадание в диапазон ASCII
 		if(0x20 <= Symbol && Symbol <= 0x7E)

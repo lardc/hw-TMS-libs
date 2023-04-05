@@ -7,6 +7,9 @@
 #include "ZwSysCtrl.h"
 #include "SySConfig.h"
 
+// Definitions
+#define LABEL_WRITE_AREA		((LABEL_NAME_MAX_LENGTH >> 1) + 2)
+
 // Variables
 static SelectorIndex LabelSelector = SID_None;
 
@@ -20,15 +23,12 @@ void FWLB_LoadBoardLabel()
 	// Чтение сохранённой метки
 	Int16U i;
 	char CurrentLabel[LABEL_NAME_MAX_LENGTH] = {0};
-	for(i = 0; i < LABEL_NAME_MAX_LENGTH; i++)
+	for(i = 0; i < (LABEL_NAME_MAX_LENGTH >> 1); i++)
 	{
 		Int16U Symbol = *(pInt16U)(i + LABEL_START_ADDRESS + 2);
 
-		// Проверка на попадание в диапазон ASCII
-		if(0x20 <= Symbol && Symbol <= 0x7E)
-			CurrentLabel[i] = Symbol;
-		else
-			break;
+		CurrentLabel[i * 2] = Symbol >> 8;
+		CurrentLabel[i * 2 + 1] = Symbol & 0xFF;
 	}
 
 	// Определение индекса метки
@@ -51,22 +51,26 @@ void FWLB_WriteBoardLabel(Int16U Index)
 
 	// Проверка на нестёртую память
 	Int16U i;
-	for(i = 0; i < LABEL_NAME_MAX_LENGTH + 2; i++)
+	for(i = 0; i < LABEL_WRITE_AREA; i++)
 	{
 		if(*(pInt16U)(i + LABEL_START_ADDRESS) != 0xFFFF)
 			return;
 	}
 
-	Int16U tmp[LABEL_NAME_MAX_LENGTH + 2] = {0};
-	for(i = 0; i < LABEL_NAME_MAX_LENGTH; i++)
-		tmp[i + 2] = BoardLabels[Index].Name[i];
+	Int16U tmp[LABEL_WRITE_AREA] = {0};
+	for(i = 0; i < LABEL_WRITE_AREA - 2; i++)
+	{
+		tmp[i + 2] = (Int16U)BoardLabels[Index].Name[i * 2] << 8;
+		tmp[i + 2] |= BoardLabels[Index].Name[i * 2 + 1];
+	}
 
 	tmp[0] = 0;							// Строковые данные
 	tmp[1] = LABEL_NAME_MAX_LENGTH;		// Длина строки
+	PrgAdrCount = (pInt16U)LABEL_START_ADDRESS;
 
 	ZwSystem_DisableDog();
 	DINT;
-	Status = Flash_Program((Uint16 *)PrgAdrCount, tmp, LABEL_NAME_MAX_LENGTH + 2, (FLASH_ST *)&FlashStatus);
+	Status = Flash_Program((pInt16U)PrgAdrCount, tmp, LABEL_WRITE_AREA, (FLASH_ST *)&FlashStatus);
 	EINT;
 	ZwSystem_EnableDog(SYS_WD_PRESCALER);
 }

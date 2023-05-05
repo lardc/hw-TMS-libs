@@ -6,7 +6,7 @@
 #include "LabelIndexSelector.h"
 
 // Definitions
-#define LABEL_NAME_MAX_LENGTH		64
+#define LABEL_NAME_MAX_LENGTH		256
 
 // Types
 typedef struct __Label

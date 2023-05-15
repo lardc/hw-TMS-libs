@@ -27,8 +27,8 @@ void FWLB_LoadBoardLabel()
 	{
 		Int16U Symbol = *(pInt16U)(i + LABEL_START_ADDRESS + 2);
 
-		CurrentLabel[i * 2] = Symbol >> 8;
-		CurrentLabel[i * 2 + 1] = Symbol & 0xFF;
+		CurrentLabel[i * 2] = (Symbol >> 8 == 0xFF) ? 0 : Symbol >> 8;
+		CurrentLabel[i * 2 + 1] = (Symbol & 0xFF == 0xFF) ? 0 : Symbol & 0xFF;
 	}
 
 	// Определение индекса метки

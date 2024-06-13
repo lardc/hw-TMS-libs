@@ -5,7 +5,7 @@
 #include "LabelDescription.h"
 #include "Flash.h"
 #include "ZwSysCtrl.h"
-#include "SySConfig.h"
+#include "SysConfig.h"
 
 // Definitions
 #define LABEL_WRITE_AREA		((LABEL_NAME_MAX_LENGTH >> 1) + 2)

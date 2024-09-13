@@ -4,6 +4,7 @@
 // Includes
 #include "Flash.h"
 #include "ZwSysCtrl.h"
+#include "ZwUtils.h"
 #include "SysConfig.h"
 #include "StorageDescription.h"
 #include "Global.h"
@@ -49,15 +50,17 @@ void STF_SaveDiagData()
 				(FLASH_ST *)&FlashStatus);
 		ShiftedAddress += 2;
 
+		// Копирование описания в RAM-массив
+		Int16U tmpDescription[MAX_DESCRIPTION_LEN] = {0};
+		MemCopy16((pInt16U)StorageDescription[i].Description, tmpDescription, DescriptionLength);
+
 		// Запись описания
-		Status = Flash_Program((pInt16U)ShiftedAddress, (pInt16U)StorageDescription[i].Description,
-				DescriptionLength, (FLASH_ST *)&FlashStatus);
+		Status = Flash_Program((pInt16U)ShiftedAddress, tmpDescription, DescriptionLength, (FLASH_ST *)&FlashStatus);
 		ShiftedAddress += DescriptionLength;
 
 		// Запись заголовка данных
 		Int16U DataHeader[2] = {StorageDescription[i].Type, StorageDescription[i].Length};
-		Status = Flash_Program((pInt16U)ShiftedAddress,
-				(pInt16U)DataHeader, 2, (FLASH_ST *)&FlashStatus);
+		Status = Flash_Program((pInt16U)ShiftedAddress, (pInt16U)DataHeader, 2, (FLASH_ST *)&FlashStatus);
 		ShiftedAddress += 2;
 
 		// Запись данных при наличии указателя

@@ -21,7 +21,7 @@ typedef enum __DataType
 	DT_Float
 } DataType;
 
-typedef struct __RecordDescription
+typedef const struct __RecordDescription
 {
 	char Description[MAX_DESCRIPTION_LEN];
 	DataType Type;

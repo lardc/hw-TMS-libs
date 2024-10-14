@@ -22,6 +22,8 @@
 #define CAN_ID_RB_16			40
 #define CAN_ID_CALL				50
 #define CAN_ID_ERR				61
+#define CAN_ID_R_BP				70
+#define CAN_ID_A_BP				71
 //
 #define MBOX_W_16				1
 #define MBOX_W_16_A				2
@@ -42,6 +44,8 @@
 #define MBOX_RB_16_A			18
 #define MBOX_WB_16  			19
 #define MBOX_WB_16_A			20
+#define MBOX_BP					23
+#define MBOX_BP_A				24
 
 // Forward functions
 //
@@ -50,6 +54,7 @@ static void BCCI_SendResponseFrame(pBCCI_Interface Interface, Int16U Mailbox, pC
 static void BCCI_SendResponseFrameEx(pBCCI_Interface Interface, Int16U Mailbox, pCANMessage Message, Int16U MessageLength);
 //
 static void BCCI_HandleRead16(pBCCI_Interface Interface);
+static void BCCI_HandleBroadcastPing(pBCCI_Interface Interface);
 static void BCCI_HandleRead32(pBCCI_Interface Interface);
 static void BCCI_HandleRead16Double(pBCCI_Interface Interface);
 static void BCCI_HandleWrite16(pBCCI_Interface Interface);
@@ -109,6 +114,9 @@ void BCCI_Init(pBCCI_Interface Interface, pBCCI_IOConfig IOConfig, pxCCI_Service
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_RB_16_A, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_RB_16 + 1, FALSE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_WB_16, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_WB_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_WB_16_A, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_WB_16 + 1, FALSE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_BP, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_R_BP, FALSE, 0, ZW_CAN_MBProtected, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_BP_A, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_A_BP, TRUE, 0, ZW_CAN_MBProtected, ZW_CAN_NO_PRIORITY, CAN_ACCEPTANCE_MASK);
 }
 // ----------------------------------------
 
@@ -197,10 +205,16 @@ void BCCI_Process(pBCCI_Interface Interface, Boolean MaskStateChangeOperations)
 
 		return;
 	}
+
+	if(Interface->IOConfig->IO_IsMessageReceived(MBOX_BP, NULL))
+	{
+		BCCI_HandleBroadcastPing(Interface);
+		return;
+	}
 }
 // ----------------------------------------
 
-static void BCCI_HandleRead16(pBCCI_Interface Interface)
+static void (pBCCI_Interface Interface)
 {
 	Int16U addr;
 	CANMessage CANInput;
@@ -221,6 +235,15 @@ static void BCCI_HandleRead16(pBCCI_Interface Interface)
 
 		BCCI_SendResponseFrame(Interface, MBOX_R_16_A, &CANOutput);
 	}
+}
+// ----------------------------------------
+
+static void BCCI_HandleBroadcastPing(pBCCI_Interface Interface)
+{
+	Interface->IOConfig->IO_GetMessage(MBOX_BP, &CANInput);
+
+	CANMessage CANOutput;
+	BCCI_SendResponseFrame(Interface, MBOX_BP_A, &CANOutput);
 }
 // ----------------------------------------
 

@@ -240,6 +240,7 @@ static void BCCI_HandleRead16(pBCCI_Interface Interface)
 
 static void BCCI_HandleBroadcastPing(pBCCI_Interface Interface)
 {
+	CANMessage CANInput;
 	Interface->IOConfig->IO_GetMessage(MBOX_BP, &CANInput);
 
 	CANMessage CANOutput;

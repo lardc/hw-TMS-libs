@@ -214,7 +214,7 @@ void BCCI_Process(pBCCI_Interface Interface, Boolean MaskStateChangeOperations)
 }
 // ----------------------------------------
 
-static void (pBCCI_Interface Interface)
+static void BCCI_HandleRead16(pBCCI_Interface Interface)
 {
 	Int16U addr;
 	CANMessage CANInput;

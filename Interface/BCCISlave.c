@@ -75,7 +75,7 @@ void BCCI_Init(pBCCI_Interface Interface, pBCCI_IOConfig IOConfig, pxCCI_Service
 	// Reset fields
 	Interface->ProtectionAndEndpoints.ProtectedAreasUsed = 0;
 	
-	for(i = 0; i < xCCI_MAX_READ_ENDPOINTS + 1; ++i)
+	for(i = 0; i < xCCI_MAX_READ_ENDPOINTS; ++i)
 	{
 		Interface->ProtectionAndEndpoints.ReadEndpoints16[i] = NULL;
 		Interface->ProtectionAndEndpoints.ReadEndpoints32[i] = NULL;
@@ -466,7 +466,7 @@ static void BCCI_HandleReadBlock16(pBCCI_Interface Interface)
 	Interface->IOConfig->IO_GetMessage(MBOX_RB_16, &CANInput);
 	epnt = CANInput.HIGH.WORD.WORD_0;
 
-	if((epnt < xCCI_MAX_READ_ENDPOINTS + 1) && Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt])
+	if((epnt < xCCI_MAX_READ_ENDPOINTS) && Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt])
 	{
 		CANMessage CANOutput;
 

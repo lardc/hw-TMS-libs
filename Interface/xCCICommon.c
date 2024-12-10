@@ -40,7 +40,7 @@ Boolean xCCI_RemoveProtectedArea(pxCCI_ProtectionAndEndpoints PAE, Int16U AreaIn
 Boolean xCCI_RegisterReadEndpoint16(pxCCI_ProtectionAndEndpoints PAE, Int16U Endpoint,
 								    xCCI_FUNC_CallbackReadEndpoint16 ReadCallback)
 {
-	if(Endpoint < xCCI_MAX_READ_ENDPOINTS + 1)
+	if(Endpoint < xCCI_MAX_READ_ENDPOINTS)
 	{
 		PAE->ReadEndpoints16[Endpoint] = ReadCallback;
 		return TRUE;
@@ -53,7 +53,7 @@ Boolean xCCI_RegisterReadEndpoint16(pxCCI_ProtectionAndEndpoints PAE, Int16U End
 Boolean xCCI_RegisterReadEndpoint32(pxCCI_ProtectionAndEndpoints PAE, Int16U Endpoint,
 								    xCCI_FUNC_CallbackReadEndpoint32 ReadCallback)
 {
-	if(Endpoint < xCCI_MAX_READ_ENDPOINTS + 1)
+	if(Endpoint < xCCI_MAX_READ_ENDPOINTS)
 	{
 		PAE->ReadEndpoints32[Endpoint] = ReadCallback;
 		return TRUE;

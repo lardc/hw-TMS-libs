@@ -82,7 +82,7 @@ void SCCI_Init(pSCCI_Interface Interface, pSCCI_IOConfig IOConfig, pxCCI_Service
 	for(i = 0; i < xCCI_BUFFER_SIZE; ++i)
 		Interface->MessageBuffer[i] = 0;
 
-	for(i = 0; i < xCCI_MAX_READ_ENDPOINTS + 1; ++i)
+	for(i = 0; i < xCCI_MAX_READ_ENDPOINTS; ++i)
 	{
 		Interface->ProtectionAndEndpoints.ReadEndpoints16[i] = NULL;
 		Interface->ProtectionAndEndpoints.ReadEndpoints32[i] = NULL;
@@ -531,7 +531,7 @@ static void SCCI_HandleReadBlock16(pSCCI_Interface Interface, Boolean Repeat)
 	Int16U length;
 	Int16U epnt = Interface->MessageBuffer[2] >> 8;
 
-	if((epnt < xCCI_MAX_READ_ENDPOINTS + 1) && Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt])
+	if((epnt < xCCI_MAX_READ_ENDPOINTS) && Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt])
 	{
 		length = Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt](epnt, &src, FALSE, Repeat,
 																		 Interface->ArgForEPCallback1, SCCI_BLOCK_MAX_VAL_16_R);
@@ -617,7 +617,7 @@ static void SCCI_HandleReadBlockFast16(pSCCI_Interface Interface, Boolean Repeat
 	Int16U length;
 	Int16U epnt = Interface->MessageBuffer[2] >> 8;
 
-	if((epnt < xCCI_MAX_READ_ENDPOINTS + 1) && Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt])
+	if((epnt < xCCI_MAX_READ_ENDPOINTS) && Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt])
 	{
 		length = Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt](epnt, &src, TRUE, Repeat,
 																		 Interface->ArgForEPCallback1, 0);

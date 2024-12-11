@@ -91,6 +91,8 @@ enum xCCI_ErrorCodes
 Int16U xCCI_AddProtectedArea(pxCCI_ProtectionAndEndpoints PAE, Int16U StartAddress, Int16U EndAddress);
 // Remove protected area
 Boolean xCCI_RemoveProtectedArea(pxCCI_ProtectionAndEndpoints PAE, Int16U AreaIndex);
+// Get Endpoint index by name
+Boolean xCCI_EndpointIndex(pxCCI_ProtectionAndEndpoints PAE, Int16U Name, pInt16U Index);
 // Register read endpoint 16-bit source callback
 Boolean xCCI_RegisterReadEndpoint16(pxCCI_ProtectionAndEndpoints PAE, Int16U Endpoint, xCCI_FUNC_CallbackReadEndpoint16 ReadCallback);
 // Register read endpoint 32-bit source callback

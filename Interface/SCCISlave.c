@@ -84,7 +84,10 @@ void SCCI_Init(pSCCI_Interface Interface, pSCCI_IOConfig IOConfig, pxCCI_Service
 
 	for(i = 0; i < xCCI_MAX_READ_ENDPOINTS; ++i)
 	{
-		Interface->ProtectionAndEndpoints.ReadEndpoints16[i] = NULL;
+		Interface->ProtectionAndEndpoints.Endpoints[i].ReadEndpoint16 = NULL;
+		Interface->ProtectionAndEndpoints.Endpoints[i].Name = 0;
+		Interface->ProtectionAndEndpoints.Endpoints[i].Initialized = FALSE;
+
 		Interface->ProtectionAndEndpoints.ReadEndpoints32[i] = NULL;
 	} 
 

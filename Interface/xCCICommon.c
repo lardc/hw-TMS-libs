@@ -37,7 +37,7 @@ Boolean xCCI_RemoveProtectedArea(pxCCI_ProtectionAndEndpoints PAE, Int16U AreaIn
 }
 // ----------------------------------------
 
-Int16U xCCI_EndpointIndex(pxCCI_ProtectionAndEndpoints PAE, Int16U Name, pInt16U Index)
+Boolean xCCI_EndpointIndex(pxCCI_ProtectionAndEndpoints PAE, Int16U Name, pInt16U Index)
 {
 	Int16U i;
 	for (i = 0; i < xCCI_MAX_READ_ENDPOINTS; ++i)

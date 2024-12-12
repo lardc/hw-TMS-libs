@@ -77,17 +77,17 @@ void BCCI_Init(pBCCI_Interface Interface, pBCCI_IOConfig IOConfig, pxCCI_Service
 	
 	for(i = 0; i < xCCI_MAX_READ_ENDPOINTS; ++i)
 	{
-		Interface->ProtectionAndEndpoints.ReadEndpoints16[i] = NULL;
-		Interface->ProtectionAndEndpoints.ReadEndpoints32[i] = NULL;
-	} 
-
-	for(i = 0; i < xCCI_MAX_WRITE_ENDPOINTS + 1; ++i)
-	{
 		Interface->ProtectionAndEndpoints.Endpoints[i].ReadEndpoint16 = NULL;
 		Interface->ProtectionAndEndpoints.Endpoints[i].Name = 0;
 		Interface->ProtectionAndEndpoints.Endpoints[i].Initialized = FALSE;
 
 		Interface->ProtectionAndEndpoints.ReadEndpoints32[i] = NULL;
+	} 
+
+	for(i = 0; i < xCCI_MAX_WRITE_ENDPOINTS + 1; ++i)
+	{
+		Interface->ProtectionAndEndpoints.WriteEndpoints16[i] = NULL;
+		Interface->ProtectionAndEndpoints.WriteEndpoints32[i] = NULL;
 	} 
 
 	// Save parameters

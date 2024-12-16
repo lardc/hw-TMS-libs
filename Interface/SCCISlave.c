@@ -620,10 +620,12 @@ static void SCCI_HandleReadBlockFast16(pSCCI_Interface Interface, Boolean Repeat
 	pInt16U src;
 	Int16U length;
 	Int16U epnt = Interface->MessageBuffer[2] >> 8;
+	Int16U epnt_index;
 
-	if((epnt < xCCI_MAX_READ_ENDPOINTS) && Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt])
+	if(xCCI_EndpointIndex(&Interface->ProtectionAndEndpoints, epnt, &epnt_index))
 	{
-		length = Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt](epnt, &src, TRUE, Repeat,
+
+		length = Interface->ProtectionAndEndpoints.Endpoints[epnt_index].ReadEndpoint16(epnt, &src, TRUE, Repeat,
 																		 Interface->ArgForEPCallback1, 0);
 		Interface->MessageBuffer[2] = (epnt << 8) | (SCCI_USE_CRC_IN_STREAM ? 1 : 0);
 

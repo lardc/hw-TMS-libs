@@ -463,17 +463,17 @@ static void BCCI_HandleCall(pBCCI_Interface Interface)
 static void BCCI_HandleReadBlock16(pBCCI_Interface Interface)
 {
 	pInt16U src;
-	Int16U epnt;
+	Int16U epnt, epnt_index;
 	CANMessage CANInput;
 
 	Interface->IOConfig->IO_GetMessage(MBOX_RB_16, &CANInput);
 	epnt = CANInput.HIGH.WORD.WORD_0;
 
-	if((epnt < xCCI_MAX_READ_ENDPOINTS) && Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt])
+	if(xCCI_EndpointIndex(&Interface->ProtectionAndEndpoints, epnt, &epnt_index))
 	{
 		CANMessage CANOutput;
 
-		Int16U length = Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt](epnt, &src, FALSE, FALSE,
+		Int16U length = Interface->ProtectionAndEndpoints.Endpoints[epnt_index].ReadEndpoint16(epnt, &src, FALSE, FALSE,
 																		 	 	Interface->ArgForEPCallback, 4);
 
 		switch(length)

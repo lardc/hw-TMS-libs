@@ -84,9 +84,9 @@ void SCCI_Init(pSCCI_Interface Interface, pSCCI_IOConfig IOConfig, pxCCI_Service
 
 	for(i = 0; i < xCCI_MAX_READ_ENDPOINTS; ++i)
 	{
-		Interface->ProtectionAndEndpoints.Endpoints[i].ReadEndpoint16 = NULL;
-		Interface->ProtectionAndEndpoints.Endpoints[i].Name = 0;
-		Interface->ProtectionAndEndpoints.Endpoints[i].Initialized = FALSE;
+		Interface->ProtectionAndEndpoints.ReadEndpoints16[i].Callback = NULL;
+		Interface->ProtectionAndEndpoints.ReadEndpoints16[i].Name = 0;
+		Interface->ProtectionAndEndpoints.ReadEndpoints16[i].Initialized = FALSE;
 
 		Interface->ProtectionAndEndpoints.ReadEndpoints32[i] = NULL;
 	} 
@@ -537,8 +537,10 @@ static void SCCI_HandleReadBlock16(pSCCI_Interface Interface, Boolean Repeat)
 
 	if(xCCI_EndpointIndex(&Interface->ProtectionAndEndpoints, epnt, &epnt_index))
 	{
-		length = Interface->ProtectionAndEndpoints.Endpoints[epnt_index].ReadEndpoint16(epnt, &src, FALSE, Repeat,
-																		 Interface->ArgForEPCallback1, SCCI_BLOCK_MAX_VAL_16_R);
+		xCCI_FUNC_CallbackReadEndpoint16 Callback =
+				(xCCI_FUNC_CallbackReadEndpoint16)Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt_index].Callback;
+		length = Callback(epnt, &src, FALSE, Repeat, Interface->ArgForEPCallback1, SCCI_BLOCK_MAX_VAL_16_R);
+
 		MemZero16(&Interface->MessageBuffer[3], SCCI_BLOCK_MAX_VAL_16_R);
 
 		if(!length || (length > SCCI_BLOCK_MAX_VAL_16_R))
@@ -624,9 +626,10 @@ static void SCCI_HandleReadBlockFast16(pSCCI_Interface Interface, Boolean Repeat
 
 	if(xCCI_EndpointIndex(&Interface->ProtectionAndEndpoints, epnt, &epnt_index))
 	{
+		xCCI_FUNC_CallbackReadEndpoint16 Callback =
+				(xCCI_FUNC_CallbackReadEndpoint16)Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt_index].Callback;
+		length = Callback(epnt, &src, TRUE, Repeat, Interface->ArgForEPCallback1, 0);
 
-		length = Interface->ProtectionAndEndpoints.Endpoints[epnt_index].ReadEndpoint16(epnt, &src, TRUE, Repeat,
-																		 Interface->ArgForEPCallback1, 0);
 		Interface->MessageBuffer[2] = (epnt << 8) | (SCCI_USE_CRC_IN_STREAM ? 1 : 0);
 
 		if(!length || (length > xCCI_BLOCK_STM_MAX_VAL))

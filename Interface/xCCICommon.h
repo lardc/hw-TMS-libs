@@ -26,7 +26,7 @@ typedef Boolean (*xCCI_FUNC_CallbackWriteEndpoint32)(Int16U Endpoint, pInt32U Bu
 
 typedef struct __xCCI_EndopointData
 {
-	xCCI_FUNC_CallbackReadEndpoint16 ReadEndpoint16;
+	void* Callback;
 	Int16U Name;
 	Boolean Initialized;
 } xCCI_EndopointData, *pxCCI_EndopointData;
@@ -51,9 +51,8 @@ typedef struct __xCCI_ProtectedArea
 typedef struct __xCCI_ProtectionAndEndpoints
 {
 	Int16U ProtectedAreasUsed;
-	xCCI_EndopointData Endpoints[xCCI_MAX_READ_ENDPOINTS];
 	xCCI_ProtectedArea ProtectedAreas[xCCI_MAX_PROTECTED_AREAS];
-	xCCI_FUNC_CallbackReadEndpoint16 ReadEndpoints16[xCCI_MAX_READ_ENDPOINTS];
+	xCCI_EndopointData ReadEndpoints16[xCCI_MAX_READ_ENDPOINTS];
 	xCCI_FUNC_CallbackReadEndpoint32 ReadEndpoints32[xCCI_MAX_READ_ENDPOINTS];
 	xCCI_FUNC_CallbackWriteEndpoint16 WriteEndpoints16[xCCI_MAX_WRITE_ENDPOINTS + 1];
 	xCCI_FUNC_CallbackWriteEndpoint32 WriteEndpoints32[xCCI_MAX_WRITE_ENDPOINTS + 1];

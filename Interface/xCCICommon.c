@@ -42,7 +42,7 @@ Boolean xCCI_EndpointIndex(pxCCI_ProtectionAndEndpoints PAE, Int16U Name, pInt16
 	Int16U i;
 	for (i = 0; i < xCCI_MAX_READ_ENDPOINTS; ++i)
 	{
-		if (PAE->Endpoints[i].Name == Name)
+		if (PAE->ReadEndpoints16[i].Name == Name)
 		{
 			*Index = i;
 			return TRUE;
@@ -58,11 +58,11 @@ Boolean xCCI_RegisterReadEndpoint16(pxCCI_ProtectionAndEndpoints PAE, Int16U End
 	Int16U i;
 	for (i = 0; i < xCCI_MAX_READ_ENDPOINTS; ++i)
 	{
-		if (!PAE->Endpoints[i].Initialized)
+		if (!PAE->ReadEndpoints16[i].Initialized)
 		{
-			PAE->Endpoints[i].ReadEndpoint16 = ReadCallback;
-			PAE->Endpoints[i].Name = Endpoint;
-			PAE->Endpoints[i].Initialized = TRUE;
+			PAE->ReadEndpoints16[i].Callback = ReadCallback;
+			PAE->ReadEndpoints16[i].Name = Endpoint;
+			PAE->ReadEndpoints16[i].Initialized = TRUE;
 
 			return TRUE;
 		}

@@ -77,9 +77,9 @@ void BCCI_Init(pBCCI_Interface Interface, pBCCI_IOConfig IOConfig, pxCCI_Service
 	
 	for(i = 0; i < xCCI_MAX_READ_ENDPOINTS; ++i)
 	{
-		Interface->ProtectionAndEndpoints.Endpoints[i].ReadEndpoint16 = NULL;
-		Interface->ProtectionAndEndpoints.Endpoints[i].Name = 0;
-		Interface->ProtectionAndEndpoints.Endpoints[i].Initialized = FALSE;
+		Interface->ProtectionAndEndpoints.ReadEndpoints16[i].Callback = NULL;
+		Interface->ProtectionAndEndpoints.ReadEndpoints16[i].Name = 0;
+		Interface->ProtectionAndEndpoints.ReadEndpoints16[i].Initialized = FALSE;
 
 		Interface->ProtectionAndEndpoints.ReadEndpoints32[i] = NULL;
 	} 
@@ -472,9 +472,9 @@ static void BCCI_HandleReadBlock16(pBCCI_Interface Interface)
 	if(xCCI_EndpointIndex(&Interface->ProtectionAndEndpoints, epnt, &epnt_index))
 	{
 		CANMessage CANOutput;
-
-		Int16U length = Interface->ProtectionAndEndpoints.Endpoints[epnt_index].ReadEndpoint16(epnt, &src, FALSE, FALSE,
-																		 	 	Interface->ArgForEPCallback, 4);
+		xCCI_FUNC_CallbackReadEndpoint16 Callback =
+				(xCCI_FUNC_CallbackReadEndpoint16)Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt_index].Callback;
+		Int16U length = Callback(epnt, &src, FALSE, FALSE, Interface->ArgForEPCallback, 4);
 
 		switch(length)
 		{

@@ -539,7 +539,7 @@ static void SCCI_HandleReadBlock16(pSCCI_Interface Interface, Boolean Repeat)
 	{
 		xCCI_FUNC_CallbackReadEndpoint16 Callback =
 				(xCCI_FUNC_CallbackReadEndpoint16)Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt_index].Callback;
-		length = Callback(epnt, &src, FALSE, Repeat, Interface->ArgForEPCallback1, SCCI_BLOCK_MAX_VAL_16_R);
+		length = Callback(epnt_index + 1, &src, FALSE, Repeat, Interface->ArgForEPCallback1, SCCI_BLOCK_MAX_VAL_16_R);
 
 		MemZero16(&Interface->MessageBuffer[3], SCCI_BLOCK_MAX_VAL_16_R);
 
@@ -628,7 +628,7 @@ static void SCCI_HandleReadBlockFast16(pSCCI_Interface Interface, Boolean Repeat
 	{
 		xCCI_FUNC_CallbackReadEndpoint16 Callback =
 				(xCCI_FUNC_CallbackReadEndpoint16)Interface->ProtectionAndEndpoints.ReadEndpoints16[epnt_index].Callback;
-		length = Callback(epnt, &src, TRUE, Repeat, Interface->ArgForEPCallback1, 0);
+		length = Callback(epnt_index + 1, &src, TRUE, Repeat, Interface->ArgForEPCallback1, 0);
 
 		Interface->MessageBuffer[2] = (epnt << 8) | (SCCI_USE_CRC_IN_STREAM ? 1 : 0);
 

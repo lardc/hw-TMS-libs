@@ -38,9 +38,9 @@ Int16U JSON_ReadSymbol()
 
 				ParameterPosition = 0;
 				itoa(Parameter, *(pInt16U)JSONPointers[Index++]);
-				break;
 			}
-			return TemplateJSON[TemplatePosition++];
+			else
+				return TemplateJSON[TemplatePosition++];
 
 		case JRSM_Replace:
 			if (Parameter[ParameterPosition + 1] == '\0')

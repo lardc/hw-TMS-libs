@@ -46,15 +46,15 @@ Int16U JSON_ReadSymbol()
 			if (Parameter[ParameterPosition + 1] == '\0')
 				CurrentState = JRSM_Read;
 			return Parameter[ParameterPosition++];
+
+		default:
+			return 0;
 	}
 }
 // ----------------------------------------
 
 Int16U itoa(char *dest, Int16U i)
 {
-	if (i < 0)
-		return 0;
-
 	char *start = dest;
 	char buffer[12];
 	char *p = buffer;

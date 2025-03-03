@@ -36,7 +36,7 @@ void STF_SaveDiagData()
 	for (i = 0; i < StorageSize; ++i)
 		MaxDataLength += StorageDescription[i].Length * STF_GetTypeLength(StorageDescription[i].Type) + 4 + strlen(StorageDescription[i].Description);
 
-	if (ShiftedAddress + MaxDataLength >= FLASH_END_ADDR)
+	if (ShiftedAddress + MaxDataLength >= FLASH_DIAG_END_ADDR)
 		return;
 
 	for(i = 0; i < StorageSize; i++)
@@ -87,7 +87,7 @@ Int16U STF_GetTypeLength(DataType CurrentType)
 
 Int32U STF_ShiftStorageEnd()
 {
-	Int32U StoragePointer = FLASH_START_ADDR;
+	Int32U StoragePointer = FLASH_DIAG_START_ADDR;
 
 	while (*(pInt16U)StoragePointer != 0xFFFF)
 	{
@@ -110,7 +110,7 @@ void STF_EraseDataSector()
 {
 	ZwSystem_DisableDog();
 	DINT;
-	Flash_Erase(FLASH_SECTOR_MASK, (FLASH_ST *)&FlashStatus);
+	Flash_Erase(FLASH_DIAG_SECTOR_MASK, (FLASH_ST *)&FlashStatus);
 	EINT;
 	ZwSystem_EnableDog(SYS_WD_PRESCALER);
 }

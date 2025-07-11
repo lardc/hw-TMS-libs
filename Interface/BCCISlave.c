@@ -70,6 +70,13 @@ static void BCCI_HandleReadBlock16(pBCCI_Interface Interface);
 void BCCI_Init(pBCCI_Interface Interface, pBCCI_IOConfig IOConfig, pxCCI_ServiceConfig ServiceConfig,
  			   pInt16U DataTable, Int16U DataTableSize, void *ArgumentForCallback)
 {
+	BCCI_InitWithNodeID(Interface, IOConfig, ServiceConfig, DataTable, DataTableSize, ArgumentForCallback, DEVICE_CAN_ADDRESS);
+}
+// ----------------------------------------
+
+void BCCI_InitWithNodeID(pBCCI_Interface Interface, pBCCI_IOConfig IOConfig, pxCCI_ServiceConfig ServiceConfig,
+ 			   pInt16U DataTable, Int16U DataTableSize, void *ArgumentForCallback, Int16U NodeID)
+{
 	Int16U i;
 	
 	// Reset fields
@@ -98,28 +105,29 @@ void BCCI_Init(pBCCI_Interface Interface, pBCCI_IOConfig IOConfig, pxCCI_Service
 	Interface->ArgForEPCallback = ArgumentForCallback;
 
 	// Setup messages
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_W_16, TRUE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16_A, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_W_16 + 1, FALSE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16_2, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_W_16_2, TRUE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16_2_A, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_W_16_2 + 1, FALSE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_32, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_W_32, TRUE, 6, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_32_A, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_W_32 + 1, FALSE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_R_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16_A, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_R_16 + 1, FALSE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16_2, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_R_16_2, TRUE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16_2_A, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_R_16_2 + 1, FALSE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_32, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_R_32, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_32_A, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_R_32 + 1, FALSE, 6, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_C, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_CALL, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_C_A, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_CALL + 1, FALSE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_ERR_A, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_ERR, FALSE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_RB_16, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_RB_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_RB_16_A, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_RB_16 + 1, FALSE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_WB_16, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_WB_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_WB_16_A, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_WB_16 + 1, FALSE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Int32U ShiftedNodeID = ((Int32U)NodeID * DEV_ADDR_MPY) & CAN_ACCEPTANCE_MASK;
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16, ShiftedNodeID + CAN_ID_W_16, TRUE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16_A, ShiftedNodeID + CAN_ID_W_16 + 1, FALSE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16_2, ShiftedNodeID + CAN_ID_W_16_2, TRUE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16_2_A, ShiftedNodeID + CAN_ID_W_16_2 + 1, FALSE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_32, ShiftedNodeID + CAN_ID_W_32, TRUE, 6, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_32_A, ShiftedNodeID + CAN_ID_W_32 + 1, FALSE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16, ShiftedNodeID + CAN_ID_R_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16_A, ShiftedNodeID + CAN_ID_R_16 + 1, FALSE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16_2, ShiftedNodeID + CAN_ID_R_16_2, TRUE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16_2_A, ShiftedNodeID + CAN_ID_R_16_2 + 1, FALSE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_32, ShiftedNodeID + CAN_ID_R_32, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_32_A, ShiftedNodeID + CAN_ID_R_32 + 1, FALSE, 6, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_C, ShiftedNodeID + CAN_ID_CALL, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_C_A, ShiftedNodeID + CAN_ID_CALL + 1, FALSE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_ERR_A, ShiftedNodeID + CAN_ID_ERR, FALSE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_RB_16, ShiftedNodeID + CAN_ID_RB_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_RB_16_A, ShiftedNodeID + CAN_ID_RB_16 + 1, FALSE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_WB_16, ShiftedNodeID + CAN_ID_WB_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_WB_16_A, ShiftedNodeID + CAN_ID_WB_16 + 1, FALSE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_BP, CAN_ID_R_BP, TRUE, 0, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_BP_A, DEVICE_CAN_ADDRESS * DEV_ADDR_MPY + CAN_ID_A_BP, FALSE, 0, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_BP_A, ShiftedNodeID + CAN_ID_A_BP, FALSE, 0, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 }
 // ----------------------------------------
 

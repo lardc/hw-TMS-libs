@@ -25,27 +25,52 @@
 #define CAN_ID_R_BP				70
 #define CAN_ID_A_BP				71
 //
-#define MBOX_W_16				1
-#define MBOX_W_16_A				2
-#define MBOX_W_16_2				3
-#define MBOX_W_16_2_A			4
-#define MBOX_W_32				5
-#define MBOX_W_32_A				6
-#define MBOX_R_16				7
-#define MBOX_R_16_A				8
-#define MBOX_R_16_2				9
-#define MBOX_R_16_2_A			10
-#define MBOX_R_32				11
-#define MBOX_R_32_A				12
-#define MBOX_C					13
-#define MBOX_C_A				14
-#define MBOX_ERR_A				15
-#define MBOX_RB_16				17
-#define MBOX_RB_16_A			18
-#define MBOX_WB_16  			19
-#define MBOX_WB_16_A			20
-#define MBOX_BP					23
-#define MBOX_BP_A				24
+#ifdef SLAVE_COMPATIBLE_MODE
+	#define MBOX_W_16				25
+	#define MBOX_W_16_A				26
+	#define MBOX_R_16				27
+	#define MBOX_R_16_A				28
+	#define MBOX_C					29
+	#define MBOX_C_A				30
+	#define MBOX_ERR_A				31
+
+	#define MBOX_W_16_2				0
+	#define MBOX_W_16_2_A			0
+	#define MBOX_W_32				0
+	#define MBOX_W_32_A				0
+	#define MBOX_R_16_2				0
+	#define MBOX_R_16_2_A			0
+	#define MBOX_R_32				0
+	#define MBOX_R_32_A				0
+	#define MBOX_RB_16				0
+	#define MBOX_RB_16_A			0
+	#define MBOX_WB_16  			0
+	#define MBOX_WB_16_A			0
+	#define MBOX_BP					0
+	#define MBOX_BP_A				0
+#else
+	#define MBOX_W_16				1
+	#define MBOX_W_16_A				2
+	#define MBOX_W_16_2				3
+	#define MBOX_W_16_2_A			4
+	#define MBOX_W_32				5
+	#define MBOX_W_32_A				6
+	#define MBOX_R_16				7
+	#define MBOX_R_16_A				8
+	#define MBOX_R_16_2				9
+	#define MBOX_R_16_2_A			10
+	#define MBOX_R_32				11
+	#define MBOX_R_32_A				12
+	#define MBOX_C					13
+	#define MBOX_C_A				14
+	#define MBOX_ERR_A				15
+	#define MBOX_RB_16				17
+	#define MBOX_RB_16_A			18
+	#define MBOX_WB_16  			19
+	#define MBOX_WB_16_A			20
+	#define MBOX_BP					23
+	#define MBOX_BP_A				24
+#endif
 
 // Forward functions
 //
@@ -108,19 +133,24 @@ void BCCI_InitWithNodeID(pBCCI_Interface Interface, pBCCI_IOConfig IOConfig, pxC
 	Int32U ShiftedNodeID = ((Int32U)NodeID * DEV_ADDR_MPY) & CAN_ACCEPTANCE_MASK;
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16, ShiftedNodeID + CAN_ID_W_16, TRUE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16_A, ShiftedNodeID + CAN_ID_W_16 + 1, FALSE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+#ifndef SLAVE_COMPATIBLE_MODE
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16_2, ShiftedNodeID + CAN_ID_W_16_2, TRUE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16_2_A, ShiftedNodeID + CAN_ID_W_16_2 + 1, FALSE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_32, ShiftedNodeID + CAN_ID_W_32, TRUE, 6, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_32_A, ShiftedNodeID + CAN_ID_W_32 + 1, FALSE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+#endif
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16, ShiftedNodeID + CAN_ID_R_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16_A, ShiftedNodeID + CAN_ID_R_16 + 1, FALSE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+#ifndef SLAVE_COMPATIBLE_MODE
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16_2, ShiftedNodeID + CAN_ID_R_16_2, TRUE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16_2_A, ShiftedNodeID + CAN_ID_R_16_2 + 1, FALSE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_32, ShiftedNodeID + CAN_ID_R_32, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_32_A, ShiftedNodeID + CAN_ID_R_32 + 1, FALSE, 6, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+#endif
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_C, ShiftedNodeID + CAN_ID_CALL, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_C_A, ShiftedNodeID + CAN_ID_CALL + 1, FALSE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_ERR_A, ShiftedNodeID + CAN_ID_ERR, FALSE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+#ifndef SLAVE_COMPATIBLE_MODE
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_RB_16, ShiftedNodeID + CAN_ID_RB_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_RB_16_A, ShiftedNodeID + CAN_ID_RB_16 + 1, FALSE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_WB_16, ShiftedNodeID + CAN_ID_WB_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
@@ -128,6 +158,7 @@ void BCCI_InitWithNodeID(pBCCI_Interface Interface, pBCCI_IOConfig IOConfig, pxC
 
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_BP, CAN_ID_R_BP, TRUE, 0, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_BP_A, ShiftedNodeID + CAN_ID_A_BP, FALSE, 0, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+#endif
 }
 // ----------------------------------------
 

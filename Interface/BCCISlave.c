@@ -9,7 +9,6 @@
 #include "CRC16.h"
 #include "SysConfig.h"
 
-
 // Macro
 //
 #define CAN_ID_W_16				10
@@ -76,7 +75,7 @@
 //
 static void BCCI_SendErrorFrame(pBCCI_Interface Interface, Int16U ErrorCode, Int16U Details);
 static void BCCI_SendResponseFrame(pBCCI_Interface Interface, Int16U Mailbox, pCANMessage Message);
-static void BCCI_SendResponseFrameEx(pBCCI_Interface Interface, Int16U Mailbox, pCANMessage Message, Int16U MessageLength);
+static void BCCI_SendResponseFrameBlock(pBCCI_Interface Interface, Int16U Mailbox, pCANMessage Message, Int16U MessageLength);
 //
 static void BCCI_HandleRead16(pBCCI_Interface Interface);
 static void BCCI_HandleBroadcastPing(pBCCI_Interface Interface);
@@ -130,7 +129,7 @@ void BCCI_InitWithNodeID(pBCCI_Interface Interface, pBCCI_IOConfig IOConfig, pxC
 	Interface->ArgForEPCallback = ArgumentForCallback;
 
 	// Setup messages
-	Int32U ShiftedNodeID = ((Int32U)NodeID * DEV_ADDR_MPY) & CAN_ACCEPTANCE_MASK;
+	Int32U ShiftedNodeID = ((Int32U)NodeID * CAN_SLAVE_NID_MPY) & CAN_SLAVE_NID_MASK;
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16, ShiftedNodeID + CAN_ID_W_16, TRUE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16_A, ShiftedNodeID + CAN_ID_W_16 + 1, FALSE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 #ifndef SLAVE_COMPATIBLE_MODE
@@ -525,10 +524,10 @@ static void BCCI_HandleReadBlock16(pBCCI_Interface Interface)
 				CANOutput.HIGH.WORD.WORD_1 = src[1];
 			case 1:
 				CANOutput.HIGH.WORD.WORD_0 = src[0];
-				BCCI_SendResponseFrameEx(Interface, MBOX_RB_16_A, &CANOutput, length);
+				BCCI_SendResponseFrameBlock(Interface, MBOX_RB_16_A, &CANOutput, length);
 				break;
 			default:
-				BCCI_SendResponseFrameEx(Interface, MBOX_RB_16_A, &CANOutput, 0);
+				BCCI_SendResponseFrameBlock(Interface, MBOX_RB_16_A, &CANOutput, 0);
 				break;
 		}
 	}
@@ -561,7 +560,7 @@ static void BCCI_HandleWriteBlock16(pBCCI_Interface Interface)
 			Interface->ProtectionAndEndpoints.WriteEndpoints16[epnt](epnt, &Data[0], FALSE,
 																		length, Interface->ArgForEPCallback);
 
-			BCCI_SendResponseFrameEx(Interface, MBOX_WB_16_A, &CANOutput, length);
+			BCCI_SendResponseFrameBlock(Interface, MBOX_WB_16_A, &CANOutput, length);
 		}
 		else
 			BCCI_SendErrorFrame(Interface, ERR_INVALID_ENDPOINT, epnt);
@@ -577,10 +576,9 @@ static void BCCI_SendResponseFrame(pBCCI_Interface Interface, Int16U Mailbox, pC
 }
 // ----------------------------------------
 
-static void BCCI_SendResponseFrameEx(pBCCI_Interface Interface, Int16U Mailbox, pCANMessage Message, Int16U MessageLength)
+static void BCCI_SendResponseFrameBlock(pBCCI_Interface Interface, Int16U Mailbox, pCANMessage Message, Int16U MessageLength)
 {
 	Message->DLC = MessageLength * 2;
-
 	Interface->IOConfig->IO_SendMessageEx(Mailbox, Message, FALSE, TRUE);
 }
 // ----------------------------------------

@@ -10,6 +10,7 @@
 //
 #include "ZwDSP.h"
 #include "BCCIParams.h"
+#include "BCCIxParams.h"
 #include "xCCICommon.h"
 #include "BCCITypes.h"
 

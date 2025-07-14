@@ -73,6 +73,8 @@
 
 // Forward functions
 //
+Int32U BCCI_ComposeResponseMsgID(pBCCI_Interface Interface, pCANMessage InputMessage, Int16U OutputMBox);
+
 static void BCCI_SendErrorFrame(pBCCI_Interface Interface, Int16U ErrorCode, Int16U Details);
 static void BCCI_SendResponseFrame(pBCCI_Interface Interface, Int16U Mailbox, pCANMessage Message);
 static void BCCI_SendResponseFrameBlock(pBCCI_Interface Interface, Int16U Mailbox, pCANMessage Message, Int16U MessageLength);
@@ -87,7 +89,6 @@ static void BCCI_HandleWrite16Double(pBCCI_Interface Interface);
 static void BCCI_HandleWriteBlock16(pBCCI_Interface Interface);
 static void BCCI_HandleCall(pBCCI_Interface Interface);
 static void BCCI_HandleReadBlock16(pBCCI_Interface Interface);
-
 
 // Functions
 //
@@ -130,34 +131,46 @@ void BCCI_InitWithNodeID(pBCCI_Interface Interface, pBCCI_IOConfig IOConfig, pxC
 
 	// Setup messages
 	Int32U ShiftedNodeID = ((Int32U)NodeID * CAN_SLAVE_NID_MPY) & CAN_SLAVE_NID_MASK;
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16, ShiftedNodeID + CAN_ID_W_16, TRUE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16, ShiftedNodeID + CAN_ID_W_16, TRUE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, CAN_MASTER_NID_MASK);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16_A, ShiftedNodeID + CAN_ID_W_16 + 1, FALSE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 #ifndef SLAVE_COMPATIBLE_MODE
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16_2, ShiftedNodeID + CAN_ID_W_16_2, TRUE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16_2, ShiftedNodeID + CAN_ID_W_16_2, TRUE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, CAN_MASTER_NID_MASK);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_16_2_A, ShiftedNodeID + CAN_ID_W_16_2 + 1, FALSE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_32, ShiftedNodeID + CAN_ID_W_32, TRUE, 6, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_32, ShiftedNodeID + CAN_ID_W_32, TRUE, 6, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, CAN_MASTER_NID_MASK);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_W_32_A, ShiftedNodeID + CAN_ID_W_32 + 1, FALSE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 #endif
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16, ShiftedNodeID + CAN_ID_R_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16, ShiftedNodeID + CAN_ID_R_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, CAN_MASTER_NID_MASK);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16_A, ShiftedNodeID + CAN_ID_R_16 + 1, FALSE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 #ifndef SLAVE_COMPATIBLE_MODE
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16_2, ShiftedNodeID + CAN_ID_R_16_2, TRUE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16_2, ShiftedNodeID + CAN_ID_R_16_2, TRUE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, CAN_MASTER_NID_MASK);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_16_2_A, ShiftedNodeID + CAN_ID_R_16_2 + 1, FALSE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_32, ShiftedNodeID + CAN_ID_R_32, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_32, ShiftedNodeID + CAN_ID_R_32, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, CAN_MASTER_NID_MASK);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_R_32_A, ShiftedNodeID + CAN_ID_R_32 + 1, FALSE, 6, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 #endif
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_C, ShiftedNodeID + CAN_ID_CALL, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_C, ShiftedNodeID + CAN_ID_CALL, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, CAN_MASTER_NID_MASK);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_C_A, ShiftedNodeID + CAN_ID_CALL + 1, FALSE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_ERR_A, ShiftedNodeID + CAN_ID_ERR, FALSE, 4, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 #ifndef SLAVE_COMPATIBLE_MODE
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_RB_16, ShiftedNodeID + CAN_ID_RB_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_RB_16, ShiftedNodeID + CAN_ID_RB_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, CAN_MASTER_NID_MASK);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_RB_16_A, ShiftedNodeID + CAN_ID_RB_16 + 1, FALSE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_WB_16, ShiftedNodeID + CAN_ID_WB_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_WB_16, ShiftedNodeID + CAN_ID_WB_16, TRUE, 2, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, CAN_MASTER_NID_MASK);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_WB_16_A, ShiftedNodeID + CAN_ID_WB_16 + 1, FALSE, 8, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 
-	Interface->IOConfig->IO_ConfigMailbox(MBOX_BP, CAN_ID_R_BP, TRUE, 0, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_BP, CAN_ID_R_BP, TRUE, 0, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, CAN_MASTER_NID_MASK);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_BP_A, ShiftedNodeID + CAN_ID_A_BP, FALSE, 0, ZW_CAN_MBProtected | ZW_CAN_UseExtendedID, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 #endif
+}
+// ----------------------------------------
+
+Int32U BCCI_ComposeResponseMsgID(pBCCI_Interface Interface, pCANMessage InputMessage, Int16U OutputMBox)
+{
+	CANMessage output;
+	Interface->IOConfig->IO_GetMessage(OutputMBox, &output);
+
+	Int32U MasterShiftedNodeID = InputMessage->MsgID.all & CAN_MASTER_NID_MASK;
+	Int32U OutputMsgID = output.MsgID.all & ~CAN_MASTER_NID_MASK;
+
+	return MasterShiftedNodeID | OutputMsgID;
 }
 // ----------------------------------------
 
@@ -271,6 +284,7 @@ static void BCCI_HandleRead16(pBCCI_Interface Interface)
 	{
 		CANMessage CANOutput;
 
+		CANOutput.MsgID.all = BCCI_ComposeResponseMsgID(Interface, &CANInput, MBOX_R_16_A);
 		CANOutput.HIGH.WORD.WORD_0 = addr;
 		CANOutput.HIGH.WORD.WORD_1 = Interface->DataTableAddress[addr];
 
@@ -281,9 +295,12 @@ static void BCCI_HandleRead16(pBCCI_Interface Interface)
 
 static void BCCI_HandleBroadcastPing(pBCCI_Interface Interface)
 {
-	CANMessage message;
-	Interface->IOConfig->IO_GetMessage(MBOX_BP, &message);
-	BCCI_SendResponseFrame(Interface, MBOX_BP_A, &message);
+	CANMessage CANInput;
+	Interface->IOConfig->IO_GetMessage(MBOX_BP, &CANInput);
+
+	CANMessage CANOutput;
+	CANOutput.MsgID.all = BCCI_ComposeResponseMsgID(Interface, &CANInput, MBOX_BP_A);
+	BCCI_SendResponseFrame(Interface, MBOX_BP_A, &CANOutput);
 }
 // ----------------------------------------
 
@@ -308,6 +325,7 @@ static void BCCI_HandleRead16Double(pBCCI_Interface Interface)
 	{
 		CANMessage CANOutput;
 
+		CANOutput.MsgID.all = BCCI_ComposeResponseMsgID(Interface, &CANInput, MBOX_R_16_2_A);
 		CANOutput.HIGH.WORD.WORD_0 = addr;
 		CANOutput.HIGH.WORD.WORD_1 = Interface->DataTableAddress[addr];
 		CANOutput.LOW.WORD.WORD_2 = addr2;
@@ -335,6 +353,7 @@ static void BCCI_HandleRead32(pBCCI_Interface Interface)
 		CANMessage CANOutput;
 		Int32U data = Interface->ServiceConfig->Read32Service(Interface->DataTableAddress, addr);
 
+		CANOutput.MsgID.all = BCCI_ComposeResponseMsgID(Interface, &CANInput, MBOX_R_32_A);
 		CANOutput.HIGH.WORD.WORD_0 = addr;
 		CANOutput.HIGH.WORD.WORD_1 = data >> 16;
 		CANOutput.LOW.WORD.WORD_2 = data & 0x0000FFFF;
@@ -368,9 +387,10 @@ static void BCCI_HandleWrite16(pBCCI_Interface Interface)
 	}
 	else
 	{
-		CANMessage CANOutput;
-
 		Interface->DataTableAddress[addr] = data;
+
+		CANMessage CANOutput;
+		CANOutput.MsgID.all = BCCI_ComposeResponseMsgID(Interface, &CANInput, MBOX_W_16_A);
 		CANOutput.HIGH.WORD.WORD_0 = addr;
 
 		BCCI_SendResponseFrame(Interface, MBOX_W_16_A, &CANOutput);
@@ -419,6 +439,7 @@ static void BCCI_HandleWrite16Double(pBCCI_Interface Interface)
 	{
 		CANMessage CANOutput;
 
+		CANOutput.MsgID.all = BCCI_ComposeResponseMsgID(Interface, &CANInput, MBOX_W_16_2_A);
 		Interface->DataTableAddress[addr1] = data1;
 		CANOutput.HIGH.WORD.WORD_0 = addr1;
 		Interface->DataTableAddress[addr2] = data2;
@@ -457,6 +478,7 @@ static void BCCI_HandleWrite32(pBCCI_Interface Interface)
 	{
 		CANMessage CANOutput;
 
+		CANOutput.MsgID.all = BCCI_ComposeResponseMsgID(Interface, &CANInput, MBOX_W_32_A);
 		Interface->ServiceConfig->Write32Service(Interface->DataTableAddress, addr, data);
 		CANOutput.HIGH.WORD.WORD_0 = addr;
 
@@ -489,6 +511,7 @@ static void BCCI_HandleCall(pBCCI_Interface Interface)
 		{
 			CANMessage CANOutput;
 
+			CANOutput.MsgID.all = BCCI_ComposeResponseMsgID(Interface, &CANInput, MBOX_C_A);
 			CANOutput.HIGH.WORD.WORD_0 = action;
 			BCCI_SendResponseFrame(Interface, MBOX_C_A, &CANOutput);
 		}
@@ -572,7 +595,7 @@ static void BCCI_HandleWriteBlock16(pBCCI_Interface Interface)
 
 static void BCCI_SendResponseFrame(pBCCI_Interface Interface, Int16U Mailbox, pCANMessage Message)
 {
-	Interface->IOConfig->IO_SendMessage(Mailbox, Message);
+	Interface->IOConfig->IO_SendMessageEx(Mailbox, Message, TRUE, FALSE);
 }
 // ----------------------------------------
 

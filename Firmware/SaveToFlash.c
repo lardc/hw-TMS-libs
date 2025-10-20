@@ -31,6 +31,7 @@ ReadCountersStateMachine CurrentState = RCSM_DescriptionType;
 Int16U LineNumber;
 Int16U DataPosition;
 Int32U FlashPosition;
+static Boolean SubstituteZeroForErased = FALSE; // map erased 0xFFFFFFFF to 0
 
 // Functions
 //
@@ -42,8 +43,8 @@ void STF_ResetStateMachine()
 	LineNumber = 0;
 	DataPosition = 0;
 	FlashPosition = STF_ShiftCounterStorageEnd();
-	if(FlashPosition != FLASH_COUNTER_START_ADDR)
-		FlashPosition -= CounterStorageSize * 4;
+    if(FlashPosition != FLASH_COUNTER_START_ADDR)
+        FlashPosition -= CounterStorageSize * 2; // each 32-bit counter occupies 2 words (16-bit)
 }
 // ----------------------------------------
 
@@ -86,7 +87,14 @@ Int16U STF_ReadCounter()
 			break;
 
 		case RCSM_Data:
-			RetVal = *(pInt16U)FlashPosition;
+			if(DataPosition == 0)
+			{
+				Int16U low = *(pInt16U)FlashPosition;
+				Int16U high = *(pInt16U)(FlashPosition + 1);
+				SubstituteZeroForErased = (low == 0xFFFF || high == 0xFFFF);
+			}
+
+			RetVal = SubstituteZeroForErased ? 0 : *(pInt16U)FlashPosition;
 
 			FlashPosition++;
 			DataPosition++;
@@ -95,6 +103,7 @@ Int16U STF_ReadCounter()
 			{
 				CurrentState = RCSM_DescriptionType;
 				LineNumber++;
+				SubstituteZeroForErased = FALSE;
 			}
 			break;
 	}

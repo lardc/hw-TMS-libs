@@ -31,7 +31,7 @@ ReadCountersStateMachine CurrentState = RCSM_DescriptionType;
 Int16U LineNumber;
 Int16U DataPosition;
 Int32U FlashPosition;
-static Boolean SubstituteZeroForErased = FALSE; // map erased 0xFFFFFFFF to 0
+static Boolean SubstituteZeroForErased = FALSE;
 
 // Functions
 //
@@ -40,11 +40,13 @@ static Boolean SubstituteZeroForErased = FALSE; // map erased 0xFFFFFFFF to 0
 void STF_ResetStateMachine()
 {
 	CurrentState = RCSM_DescriptionType;
+	SubstituteZeroForErased = FALSE;
 	LineNumber = 0;
 	DataPosition = 0;
 	FlashPosition = STF_ShiftCounterStorageEnd();
-    if(FlashPosition != FLASH_COUNTER_START_ADDR)
-        FlashPosition -= CounterStorageSize * 2; // each 32-bit counter occupies 2 words (16-bit)
+
+	if(FlashPosition != FLASH_COUNTER_START_ADDR)
+		FlashPosition -= CounterStorageSize * 2; // each 32-bit counter occupies 2 words (16-bit)
 }
 // ----------------------------------------
 
@@ -133,7 +135,8 @@ void STF_LoadCounters()
 	Int16U i;
 	for (i = 0; i < CounterStorageSize; ++i)
 	{
-		CounterTablePointers[i].Value = *(pInt32U)CounterTablePointers[i].Address = SavedData ? STF_ReadCounter32(StoragePointer) : 0;
+		CounterTablePointers[i].Value = *(pInt32U)CounterTablePointers[i].Address =
+				SavedData ? STF_ReadCounter32(StoragePointer) : 0;
 		StoragePointer += 2;
 	}
 }
@@ -196,9 +199,10 @@ Int32U STF_ShiftCounterStorageEnd()
 
 Int32U STF_ReadCounter32(Int32U Address)
 {
-	Int16U LOW = *(pInt16U)Address;
-	Int16U HIGH = *(pInt16U)(Address + 1);
-	return ((Int32U)HIGH << 16) | LOW;
+	Int16U Low = *(pInt16U)Address;
+	Int16U High = *(pInt16U)(Address + 1);
+	Int32U Value = ((Int32U)High << 16) | Low;
+	return (Value == INT32U_MAX) ? 0 : Value;
 }
 // ----------------------------------------
 #endif

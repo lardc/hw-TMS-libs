@@ -208,6 +208,7 @@ Int32U STF_ReadCounter32(Int32U Address)
 #endif
 
 // Функции для работы с диагностическими данными
+#ifdef FLASH_DIAG_START_ADDR
 void STF_SaveDiagData()
 {
 	ZwSystem_DisableDog();
@@ -306,6 +307,7 @@ void STF_EraseDataSector()
 	ZwSystem_EnableDog(SYS_WD_PRESCALER);
 }
 // ----------------------------------------
+#endif
 
 Int16U strlen(const char* string)
 {

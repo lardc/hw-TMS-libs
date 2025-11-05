@@ -135,8 +135,10 @@ void STF_LoadCounters()
 	Int16U i;
 	for (i = 0; i < CounterStorageSize; ++i)
 	{
-		CounterTablePointers[i].Value = *(pInt32U)CounterTablePointers[i].Address =
-				SavedData ? STF_ReadCounter32(StoragePointer) : 0;
+		Int32U Value = SavedData ? STF_ReadCounter32(StoragePointer) : 0;
+		Value = (Value == INT32U_MAX) ? 0 : Value;
+
+		CounterTablePointers[i].Value = *(pInt32U)CounterTablePointers[i].Address = Value;
 		StoragePointer += 2;
 	}
 }
@@ -201,13 +203,13 @@ Int32U STF_ReadCounter32(Int32U Address)
 {
 	Int16U Low = *(pInt16U)Address;
 	Int16U High = *(pInt16U)(Address + 1);
-	Int32U Value = ((Int32U)High << 16) | Low;
-	return (Value == INT32U_MAX) ? 0 : Value;
+	return ((Int32U)High << 16) | Low;
 }
 // ----------------------------------------
 #endif
 
 // Функции для работы с диагностическими данными
+#ifdef FLASH_DIAG_START_ADDR
 void STF_SaveDiagData()
 {
 	ZwSystem_DisableDog();
@@ -306,6 +308,7 @@ void STF_EraseDataSector()
 	ZwSystem_EnableDog(SYS_WD_PRESCALER);
 }
 // ----------------------------------------
+#endif
 
 Int16U strlen(const char* string)
 {

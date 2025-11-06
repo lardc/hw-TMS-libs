@@ -27,11 +27,28 @@ typedef enum __ReadCountersStateMachine
 	RCSM_Data,
 } ReadCountersStateMachine;
 
+typedef enum __SaveCountersStateMachine
+{
+	SCSM_CheckTimer = 0,
+	SCSM_CheckDataChange,
+	SCSM_CheckFlash,
+	SCSM_ClearSectorE,
+	SCSM_ClearSectorF,
+	SCSM_ClearSectorG,
+	SCSM_ClearSectorH,
+	SCSM_SaveData,
+} SaveCountersStateMachine;
+
 ReadCountersStateMachine CurrentState = RCSM_DescriptionType;
+SaveCountersStateMachine SaveState = SCSM_CheckTimer;
+Int64U SaveTimer = 0; // Последняя отметка времени автосохранения
 Int16U LineNumber;
 Int16U DataPosition;
 Int32U FlashPosition;
+Int32U ShiftedAddress;
 static Boolean SubstituteZeroForErased = FALSE;
+static Int16U ErasePause = 5; // задержка между стираниями, мс
+static Int64U ErasePauseTimeout = 0; // момент времени, когда можно выполнять следующее стирание
 
 // Functions
 //
@@ -124,6 +141,16 @@ void STF_EraseCounterDataSector()
 }
 // ----------------------------------------
 
+void STF_EraseCounterDataSingleSector(Uint16 Sector)
+{
+	ZwSystem_DisableDog();
+	DINT;
+	Flash_Erase(Sector, (FLASH_ST *)&FlashStatus);
+	EINT;
+	ZwSystem_EnableDog(SYS_WD_PRESCALER);
+}
+// ----------------------------------------
+
 void STF_LoadCounters()
 {
 	Int32U StoragePointer = STF_ShiftCounterStorageEnd();
@@ -184,6 +211,110 @@ void STF_SaveCounterData()
 
 	EINT;
 	ZwSystem_EnableDog(SYS_WD_PRESCALER);
+}
+// ----------------------------------------
+
+void STF_SaveCounterDataTimed(volatile Int64U TimeCounter)
+{
+	Int16U i;
+	switch(SaveState)
+	{
+		case SCSM_CheckTimer:
+			if (TimeCounter - SaveTimer >= SAVE_TIMEOUT)
+			{
+				SaveTimer = TimeCounter;
+				SaveState = SCSM_CheckDataChange;
+			}
+			break;
+
+		case SCSM_CheckDataChange:
+			for (i = 0; i < CounterStorageSize; ++i)
+			{
+				if (CounterTablePointers[i].Value != *(pInt32U) CounterTablePointers[i].Address)
+				{
+					SaveState = SCSM_CheckFlash;
+					break;
+				}
+			}
+			if (i == CounterStorageSize)
+				SaveState = SCSM_CheckTimer;
+			break;
+
+		case SCSM_CheckFlash:
+			ZwSystem_DisableDog();
+			DINT;
+			ShiftedAddress = STF_ShiftCounterStorageEnd();
+			if (ShiftedAddress + CounterStorageSize * 2 > FLASH_COUNTER_END_ADDR)
+			{
+				SaveState = SCSM_ClearSectorE;
+				ShiftedAddress = FLASH_COUNTER_START_ADDR;
+				ErasePauseTimeout = TimeCounter + ErasePause;
+			}
+			else
+				SaveState = SCSM_SaveData;
+			EINT;
+			ZwSystem_EnableDog(SYS_WD_PRESCALER);
+			break;
+
+		case SCSM_ClearSectorE:
+			if (TimeCounter >= ErasePauseTimeout)
+			{
+				if (FLASH_COUNTER_SECTOR_MASK & SECTORE)
+				{
+					STF_EraseCounterDataSingleSector(SECTORE);
+					ErasePauseTimeout = TimeCounter + ErasePause;
+				}
+				SaveState = SCSM_ClearSectorF;
+			}
+			break;
+
+		case SCSM_ClearSectorF:
+			if (TimeCounter >= ErasePauseTimeout)
+			{
+				if (FLASH_COUNTER_SECTOR_MASK & SECTORF)
+				{
+					STF_EraseCounterDataSingleSector(SECTORF);
+					ErasePauseTimeout = TimeCounter + ErasePause;
+				}
+				SaveState = SCSM_ClearSectorG;
+			}
+			break;
+
+		case SCSM_ClearSectorG:
+			if (TimeCounter >= ErasePauseTimeout)
+			{
+				if (FLASH_COUNTER_SECTOR_MASK & SECTORG)
+				{
+					STF_EraseCounterDataSingleSector(SECTORG);
+					ErasePauseTimeout = TimeCounter + ErasePause;
+				}
+				SaveState = SCSM_ClearSectorH;
+			}
+			break;
+
+		case SCSM_ClearSectorH:
+			if (TimeCounter >= ErasePauseTimeout)
+			{
+				if (FLASH_COUNTER_SECTOR_MASK & SECTORH)
+					STF_EraseCounterDataSingleSector(SECTORH);
+				SaveState = SCSM_SaveData;
+			}
+			break;
+
+		case SCSM_SaveData:
+			ZwSystem_DisableDog();
+			DINT;
+			for (i = 0; i < CounterStorageSize; ++i)
+			{
+				Flash_Program((pInt16U)ShiftedAddress, (pInt16U)CounterTablePointers[i].Address, 2,
+						(FLASH_ST *)&FlashStatus);
+				ShiftedAddress += 2;
+			}
+			EINT;
+			ZwSystem_EnableDog(SYS_WD_PRESCALER);
+			SaveState = SCSM_CheckTimer;
+			break;
+	}
 }
 // ----------------------------------------
 

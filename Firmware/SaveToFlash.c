@@ -47,7 +47,6 @@ Int16U DataPosition;
 Int32U FlashPosition;
 Int32U ShiftedAddress;
 static Boolean SubstituteZeroForErased = FALSE;
-static Int16U ErasePause = 5; // задержка между стираниями, мс
 static Int64U ErasePauseTimeout = 0; // момент времени, когда можно выполнять следующее стирание
 
 // Functions
@@ -241,19 +240,15 @@ void STF_SaveCounterDataTimed(volatile Int64U TimeCounter)
 			break;
 
 		case SCSM_CheckFlash:
-			ZwSystem_DisableDog();
-			DINT;
 			ShiftedAddress = STF_ShiftCounterStorageEnd();
 			if (ShiftedAddress + CounterStorageSize * 2 > FLASH_COUNTER_END_ADDR)
 			{
 				SaveState = SCSM_ClearSectorE;
 				ShiftedAddress = FLASH_COUNTER_START_ADDR;
-				ErasePauseTimeout = TimeCounter + ErasePause;
+				ErasePauseTimeout = TimeCounter + ERASE_PAUSE;
 			}
 			else
 				SaveState = SCSM_SaveData;
-			EINT;
-			ZwSystem_EnableDog(SYS_WD_PRESCALER);
 			break;
 
 		case SCSM_ClearSectorE:
@@ -262,7 +257,7 @@ void STF_SaveCounterDataTimed(volatile Int64U TimeCounter)
 				if (FLASH_COUNTER_SECTOR_MASK & SECTORE)
 				{
 					STF_EraseCounterDataSingleSector(SECTORE);
-					ErasePauseTimeout = TimeCounter + ErasePause;
+					ErasePauseTimeout = TimeCounter + ERASE_PAUSE;
 				}
 				SaveState = SCSM_ClearSectorF;
 			}
@@ -274,7 +269,7 @@ void STF_SaveCounterDataTimed(volatile Int64U TimeCounter)
 				if (FLASH_COUNTER_SECTOR_MASK & SECTORF)
 				{
 					STF_EraseCounterDataSingleSector(SECTORF);
-					ErasePauseTimeout = TimeCounter + ErasePause;
+					ErasePauseTimeout = TimeCounter + ERASE_PAUSE;
 				}
 				SaveState = SCSM_ClearSectorG;
 			}
@@ -286,7 +281,7 @@ void STF_SaveCounterDataTimed(volatile Int64U TimeCounter)
 				if (FLASH_COUNTER_SECTOR_MASK & SECTORG)
 				{
 					STF_EraseCounterDataSingleSector(SECTORG);
-					ErasePauseTimeout = TimeCounter + ErasePause;
+					ErasePauseTimeout = TimeCounter + ERASE_PAUSE;
 				}
 				SaveState = SCSM_ClearSectorH;
 			}

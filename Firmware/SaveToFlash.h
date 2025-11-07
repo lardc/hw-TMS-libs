@@ -8,6 +8,7 @@
 // Definition
 #define MAX_DESCRIPTION_LEN			64
 #define SAVE_TIMEOUT				1800000 // Значение в мс (30 мин)
+#define ERASE_PAUSE					5		// в мс
 
 // Types
 typedef enum __DataType

@@ -80,11 +80,19 @@ void DEVPROFILE_Init(xCCI_FUNC_CallbackAction SpecializedDispatch, volatile Bool
 	RS232_IOConfig.IO_GetBytesToReceive = &ZwSCIb_GetBytesToReceive;
 	RS232_IOConfig.IO_ReceiveByte = &ZwSCIb_ReceiveChar;
 #endif
+#ifdef HWUSE_CAN_B
+	CAN_IOConfig.IO_SendMessage = &ZwCANb_SendMessage;
+	CAN_IOConfig.IO_SendMessageEx = &ZwCANb_SendMessageEx;
+	CAN_IOConfig.IO_GetMessage = &ZwCANb_GetMessage;
+	CAN_IOConfig.IO_IsMessageReceived = &ZwCANb_IsMessageReceived;
+	CAN_IOConfig.IO_ConfigMailbox = &ZwCANb_ConfigMailbox;
+#else
 	CAN_IOConfig.IO_SendMessage = &ZwCANa_SendMessage;
 	CAN_IOConfig.IO_SendMessageEx = &ZwCANa_SendMessageEx;
 	CAN_IOConfig.IO_GetMessage = &ZwCANa_GetMessage;
 	CAN_IOConfig.IO_IsMessageReceived = &ZwCANa_IsMessageReceived;
 	CAN_IOConfig.IO_ConfigMailbox = &ZwCANa_ConfigMailbox;
+#endif
 
 	// Init service
 	X_ServiceConfig.Read32Service = &DEVPROFILE_ReadValue32;

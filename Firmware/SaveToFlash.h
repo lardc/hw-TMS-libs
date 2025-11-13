@@ -7,6 +7,8 @@
 
 // Definition
 #define MAX_DESCRIPTION_LEN			64
+#define SAVE_TIMEOUT				1800000 // Значение в мс (30 мин)
+#define ERASE_PAUSE					5		// в мс
 
 // Types
 typedef enum __DataType
@@ -51,6 +53,7 @@ Int16U STF_ReadCounter();
 void STF_ResetStateMachine();
 void STF_AssignCounterPointer(Int16U Index, Int32U Pointer);
 void STF_SaveCounterData();
+void STF_SaveCounterDataTimed(volatile Int64U TimeCounter);
 void STF_EraseCounterDataSector();
 void STF_LoadCounters();
 #endif

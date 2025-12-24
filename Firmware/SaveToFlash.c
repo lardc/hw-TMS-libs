@@ -46,13 +46,14 @@ Int16U LineNumber;
 Int16U DataPosition;
 Int32U FlashPosition;
 Int32U ShiftedAddress;
+
+#ifdef FLASH_COUNTER_START_ADDR
 static Boolean SubstituteZeroForErased = FALSE;
 static Int64U ErasePauseTimeout = 0; // момент времени, когда можно выполнять следующее стирание
 
 // Functions
 //
 // Функции для работы со счётчиками
-#ifdef FLASH_COUNTER_START_ADDR
 void STF_ResetStateMachine()
 {
 	CurrentState = RCSM_DescriptionType;

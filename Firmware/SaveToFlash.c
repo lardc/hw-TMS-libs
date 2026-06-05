@@ -339,9 +339,6 @@ Int32U STF_ReadCounter32(Int32U Address)
 #ifdef FLASH_DIAG_START_ADDR
 void STF_SaveDiagData()
 {
-	ZwSystem_DisableDog();
-	DINT;
-
 	Int32U ShiftedAddress = STF_ShiftStorageEnd();
 	Int16U MaxDataLength = 0;
 
@@ -357,6 +354,9 @@ void STF_SaveDiagData()
 		Int16U DescriptionLength = strlen(StorageDescription[i].Description);
 		static Int16U DescriptionHeader[2] = {DT_Char};
 		DescriptionHeader[1] = DescriptionLength;
+
+		DINT;
+		ZwSystem_DisableDog();
 
 		// Запись заголовка описания
 		Status = Flash_Program((pInt16U)ShiftedAddress, (pInt16U)DescriptionHeader, 2,
@@ -385,10 +385,10 @@ void STF_SaveDiagData()
 					(pInt16U)TablePointers[i], DataWriteLength, (FLASH_ST *)&FlashStatus);
 			ShiftedAddress += DataWriteLength;
 		}
-	}
 
-	EINT;
-	ZwSystem_EnableDog(SYS_WD_PRESCALER);
+		EINT;
+		ZwSystem_EnableDog(SYS_WD_PRESCALER);
+	}
 }
 // ----------------------------------------
 

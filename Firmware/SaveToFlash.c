@@ -206,6 +206,7 @@ void STF_SaveCounterData()
 	{
 		Flash_Program((pInt16U)ShiftedAddress, (pInt16U)CounterTablePointers[i].Address, 2,
 				(FLASH_ST *)&FlashStatus);
+		CounterTablePointers[i].Value = *(pInt32U)CounterTablePointers[i].Address;
 		ShiftedAddress += 2;
 	}
 
